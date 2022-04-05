@@ -4,13 +4,13 @@ import java.util.Scanner;
 
 import auth.Login;
 import auth.Signup;
-import database.UserTable;
+import database.UserAuthRepository;
 import model.MyCalendar;
 import model.User;
 
 public class UserUI {
 	private static Scanner input = new Scanner(System.in);
-	UserTable users = UserTable.getInstance();
+	UserAuthRepository users = UserAuthRepository.getInstance();
 
 	public void execute() {
 		System.out.println("\nEvent Calendar");
