@@ -7,12 +7,15 @@ import auth.Signup;
 import database.UserAuthRepository;
 import model.MyCalendar;
 import model.User;
+import service.TestInterface;
 
-public class UserUI {
+public class UserUI implements TestInterface {
 	private static Scanner input = new Scanner(System.in);
 	UserAuthRepository users = UserAuthRepository.getInstance();
-
+	
 	public void execute() {
+		MyCalendar cal = new MyCalendar();
+		cal.getMonthView(2022, 4);
 		System.out.println("\nEvent Calendar");
 		String choice;
 		do {
@@ -69,7 +72,7 @@ public class UserUI {
 			System.out.print("Enter password : ");
 			password = input.next();
 			
-			Login userLogin = new Login(email, password);
+			Login userLogin = new Login(email, password, this);
 		
 			if(userLogin.checkUser()) {
 				System.out.println("Successfully logged in");
@@ -83,6 +86,11 @@ public class UserUI {
 			}
 		}
 
+	}
+	@Override
+	public void msg(String msg) {
+		System.out.println(msg);
+		
 	}
 	
 }
