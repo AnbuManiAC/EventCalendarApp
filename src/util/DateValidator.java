@@ -67,10 +67,10 @@ public class DateValidator {
 		return false;
 	}
 
-	public boolean isValidEndDate(String startDate, String endDate) {
+	public boolean isValidDateRange(String startDate, String endDate) {
 		if (isValidDate(startDate) && isValidDate(endDate)) {
-			Long start = InputFormatter.dateToMillisecond(startDate);
-			Long end = InputFormatter.dateToMillisecond(endDate);
+			Long start = DateAndTimeFormatter.dateToMillisecond(startDate);
+			Long end = DateAndTimeFormatter.dateToMillisecond(endDate);
 			int dateComparator = start.compareTo(end);
 			if (dateComparator != 1)
 				return true;

@@ -37,10 +37,10 @@ public class TimeValidator {
 		return false;
 	}
 
-	public boolean isValidEndTime(String startDate, String endDate, String startTime, String endTime) {
+	public boolean isValidDateTimeRange(String startDate, String endDate, String startTime, String endTime) {
 		if (isValidTime(endTime) && isValidTime(startTime)) {
-			Long startDateTime = InputFormatter.dateTimeToMillisecond(startDate, startTime);
-			Long endDateTime = InputFormatter.dateTimeToMillisecond(endDate, endTime);
+			Long startDateTime = DateAndTimeFormatter.dateTimeToMillisecond(startDate, startTime);
+			Long endDateTime = DateAndTimeFormatter.dateTimeToMillisecond(endDate, endTime);
 			int dateTimeComparator = startDateTime.compareTo(endDateTime);
 			if (dateTimeComparator == -1)
 				return true;
