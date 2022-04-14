@@ -10,39 +10,38 @@ import util.EmailValidator;
 import util.PasswordValidator;
 
 public class UserUI {
-	
+
 	UserManager userManager;
 	User currentUser;
-	
-	
+
 	public UserUI() {
 		userManager = new UserManager();
 	}
-	
+
 	private Scanner input = new Scanner(System.in);
 
 	public void execute() {
 		System.out.println("\nEvent Calendar");
 		String choice;
 		do {
-			printUserMenu();
+			showUserMenu();
 			System.out.print("Enter your choice : ");
-			choice = input.next();
+			choice = input.nextLine();
 			if (choice.equals("1"))
 				signup();
 			else if (choice.equals("2")) {
 				login();
-			}
-			else if(!choice.equals("3")) {
+			} else if (choice.equals("3")) {
+				break;
+			} else {
 				System.out.println("Invalid option!\n");
 			}
-
-		} while (!choice.equals("3"));
+		} while (true);
 		if (choice == "3")
 			System.exit(0);
 	}
 
-	private void printUserMenu() {
+	private void showUserMenu() {
 		System.out.println("1. Signup");
 		System.out.println("2. Login");
 		System.out.println("3. Exit\n");
@@ -55,8 +54,8 @@ public class UserUI {
 		String password;
 		while (true) {
 			System.out.print("Enter name : ");
-			name = input.next().trim();
-			if (name.length() >0)
+			name = input.nextLine().trim();
+			if (name.length() > 0)
 				break;
 			else
 				System.out.println("Empty name!");
@@ -64,31 +63,33 @@ public class UserUI {
 		}
 		while (true) {
 			System.out.print("Enter email : ");
-			email = input.next();
+			email = input.nextLine().trim().toLowerCase();
 			EmailValidator emailValidator = new EmailValidator();
 			if (emailValidator.isValidEmail(email))
 				break;
 			else
 				System.out.println("Invalid email!");
 		}
-		if(userManager.isExistingUser(email)) {
+		if (userManager.isExistingUser(email)) {
 			System.out.println("User already exists! Login to continue");
 			return;
 		}
-		System.out.println("[ Password must be between 8 to 20 characters long\n  Password must contains one uppercase, lowercase character and one number\n  Password must contains one special characters among @#$% ]");
 		while (true) {
+			System.out.println(
+					"[ Password must be between 8 to 15 characters long\n  Password must contains one uppercase, lowercase character and one number\n  Password must contains one special characters among @#$%_ ]");
 			System.out.print("Enter password : ");
-			password = input.next();
+			password = input.nextLine();
 			PasswordValidator passwordValidator = new PasswordValidator();
 			if (passwordValidator.isValidPassword(password))
 				break;
+			System.out.println("Password doesn't match the required conditions");
 		}
 
 		try {
 			userManager.signup(name, email, password);
 			System.out.println("Successfully signed up");
 			login();
-			
+
 		} catch (UserAlreadyExistsException e) {
 			System.out.println("User Already exists");
 		}
@@ -99,7 +100,7 @@ public class UserUI {
 		String email;
 		String password;
 		System.out.print("Enter email : ");
-		email = input.next();
+		email = input.next().trim().toLowerCase();
 		while (true) {
 			System.out.print("Enter password : ");
 			password = input.next();
@@ -108,11 +109,12 @@ public class UserUI {
 				userManager.login(email, password);
 				System.out.println("Successfully logged in");
 				currentUser = userManager.getLoggedInUser();
-				System.out.println("\n------ Welcome "+currentUser.getName()+"! ------");
+				System.out.println("\n------ Welcome " + currentUser.getName() + "! ------");
 				CalendarUI calendarUI = new CalendarUI(currentUser);
 				calendarUI.execute();
+				logout();
 				return;
-				
+
 			} catch (InvalidCredentials e) {
 				System.out.println("Incorrect password!");
 				continue;
@@ -122,6 +124,11 @@ public class UserUI {
 			}
 		}
 
+	}
+
+	private void logout() {
+		this.currentUser = null;
+		userManager.logout();
 	}
 
 }

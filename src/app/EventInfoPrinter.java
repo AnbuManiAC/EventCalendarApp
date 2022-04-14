@@ -25,7 +25,7 @@ public class EventInfoPrinter {
 					eventDetails.append(startEventDate + eventStartTime + " - " + endEventDate + eventEndTime);
 				}
 
-				System.out.println("Event id: " + event.getId() + " " + eventDetails.toString() + event.getName());
+				System.out.println("Event Id : (" + event.getId() + ")  " + eventDetails.toString() + event.getName());
 			}
 		} else {
 			System.out.println("No events scheduled");

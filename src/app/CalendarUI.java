@@ -10,7 +10,7 @@ import model.Event;
 import model.MyCalendar;
 import model.RecurrenceType;
 import model.User;
-import service.RecurringEventGenerator;
+import service.RecurringEventManager;
 import util.DateAndTimeFormatter;
 import util.DateValidator;
 import util.TimeValidator;
@@ -30,7 +30,7 @@ public class CalendarUI implements ShowErrorMessage {
 		eventManager = new EventManager();
 	}
 
-	public void printCalendarMenu() {
+	public void showCalendarMenu() {
 		System.out.println("\n---Calendar Menu---");
 		System.out.println("1. Show Calendar");
 		System.out.println("2. Create Event");
@@ -48,7 +48,7 @@ public class CalendarUI implements ShowErrorMessage {
 		System.out.println("\nEvent Calendar");
 		String choice;
 		while (true) {
-			printCalendarMenu();
+			showCalendarMenu();
 			System.out.println("Enter your choice : ");
 			choice = input.next();
 			switch (choice) {
@@ -81,8 +81,7 @@ public class CalendarUI implements ShowErrorMessage {
 				viewEvent();
 				break;
 			case "9":
-				currentUser = null;
-				
+				currentUser = null;			
 				System.out.println("Successfully logged out");
 				return;
 			default:
@@ -99,17 +98,40 @@ public class CalendarUI implements ShowErrorMessage {
 		String choice;
 
 		while (true) {
-			System.out.println("1. Previous\n2. Next\n3. Main menu");
+			System.out.println("1. Previous\n2. Next\n3. Change Calendar Size\n4. Main menu");
 			choice = input.next().trim();
 			if (choice.equals("1"))
 				System.out.println(myCalendar.previousMonth(calendar));
 			else if (choice.equals("2"))
 				System.out.println(myCalendar.nextMonth(calendar));
-			else if (choice.equals("3"))
+			else if (choice.equals("3")) {
+				customizeCalendar();
+				System.out.println(myCalendar.currentMonth(calendar));
+			}
+			else if(choice.equals("4"))
 				return;
 			else
 				System.out.println("Invalid option!");
 		}
+	}
+
+	private void customizeCalendar() {
+		String sizePreference;
+		System.out.println("\n1. Small\n2. Medium\n3. Large");
+		System.out.print("Enter your size preference : ");
+		String confirmationMessage = "Size preference saved";
+		sizePreference = input.next();
+		do {
+			if(sizePreference.equals("1"))
+				myCalendar.setCalendarSizePreference(MyCalendar.CalendarSize.SMALL);
+			else if(sizePreference.equals("2"))
+				myCalendar.setCalendarSizePreference(MyCalendar.CalendarSize.MEDIUM);
+			else if(sizePreference.equals("3"))
+				myCalendar.setCalendarSizePreference(MyCalendar.CalendarSize.LARGE);
+			else
+				System.out.println("Invalid choice!");
+		}while(!sizePreference.equals("1") && !sizePreference.equals("2") && !sizePreference.equals("3"));
+		System.out.println(confirmationMessage);
 	}
 
 	private void viewEvent() {
@@ -139,7 +161,7 @@ public class CalendarUI implements ShowErrorMessage {
 		}
 
 		while (true) {
-			System.out.println("Enter starting time(hh:mm in 24 hours format) : ");
+			System.out.print("Enter starting time(hh:mm in 24 hours format) : ");
 			startTime = input.next().trim();
 			if (timeValidator.isValidTime(startTime))
 				break;
@@ -154,7 +176,7 @@ public class CalendarUI implements ShowErrorMessage {
 		}
 
 		while (true) {
-			System.out.println("Enter ending time(hh:mm in 24 hours format) : ");
+			System.out.print("Enter ending time(hh:mm in 24 hours format) : ");
 			endTime = input.next().trim();
 			if (timeValidator.isValidTime(endTime))
 				if (timeValidator.isValidDateTimeRange(startDate, endDate, startTime, endTime))
@@ -162,20 +184,21 @@ public class CalendarUI implements ShowErrorMessage {
 		}
 
 		try {
-			eventManager.createEvent(currentUser, name,
+			Event event = eventManager.createEvent(currentUser, name,
 					DateAndTimeFormatter.dateTimeToMillisecond(startDate, startTime),
 					DateAndTimeFormatter.dateTimeToMillisecond(endDate, endTime));
-//			while (true) {
-//				System.out.print("Do you want to recur this event(y/n) : ");
-//				String recurChoice = input.next().trim();
-//				if (recurChoice.equalsIgnoreCase("y")) {
-//					recurEvent(event);
-//					break;
-//				} else if (recurChoice.equalsIgnoreCase("n"))
-//					break;
-//				else
-//					System.out.println("Invalid choice!");
-//			}
+			System.out.println("Event created successfully");
+			while (true) {
+				System.out.print("Do you want to recur this event(y/n) : ");
+				String recurChoice = input.next().trim();
+				if (recurChoice.equalsIgnoreCase("y")) {
+					recurEvent(event);
+					break;
+				} else if (recurChoice.equalsIgnoreCase("n"))
+					break;
+				else
+					System.out.println("Invalid choice!");
+			}
 
 		} catch (InvalidEventException e) {
 			System.out.println(e.getClass().getName() + " : " + e.getMessage());
@@ -186,12 +209,12 @@ public class CalendarUI implements ShowErrorMessage {
 	private void recurEvent(Event event) {
 		int recurCount;
 		RecurrenceType recurType;
-		System.out.println("Enter recurring count : ");
+		System.out.print("Enter recurring count : ");
 		while (true) {
 			recurCount = input.nextInt();
 			if (recurCount > 0) {
 				System.out.println("1. " + RecurrenceType.DAILY + "\n" + "2. " + RecurrenceType.WEEKLY);
-				System.out.println("Enter recurring type : ");
+				System.out.print("Enter recurring type : ");
 				String recurTypeEntered = input.next().trim();
 				if (recurTypeEntered.equals("1")) {
 					recurType = RecurrenceType.DAILY;
@@ -205,24 +228,20 @@ public class CalendarUI implements ShowErrorMessage {
 			}
 
 		}
-		RecurringEventGenerator recurringEventGenerator = new RecurringEventGenerator(event, recurCount, recurType);
+		RecurringEventManager recurringEventManager = new RecurringEventManager(currentUser, event, recurCount, recurType);
 		try {
-			TreeSet<Event> recurringEvents = recurringEventGenerator.getAllEvents();
-			for (Event recuringEvent : recurringEvents) {
-//				calendarEventRepository.insertRecord(recuringEvent);
-			}
+			recurringEventManager.createEvent();
+			System.out.println("Recurring event created successfully");
 		} catch (InvalidEventException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 	}
 
 	private void deleteEvent() {
 		TreeSet<Event> eventList = getEventFromDate();
 		if (eventList != null) {
 			eventInfoPrinter.print(eventList);
-			System.out.println("Enter Event id to delete event : ");
+			System.out.print("Enter Event id to delete event : ");
 			int eventIdtoDelete = input.nextInt();
 			if (eventManager.deleteEvent(currentUser, eventIdtoDelete))
 				System.out.println("Event deleted");
