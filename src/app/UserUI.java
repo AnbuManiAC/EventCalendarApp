@@ -1,8 +1,9 @@
 package app;
 
 import java.util.Scanner;
-import database.UserManager;
+import database.UserQueryManager;
 import exception.InvalidCredentials;
+import exception.NoUserLoggedIn;
 import exception.UserAlreadyExistsException;
 import exception.UserDoesNotExistsException;
 import model.User;
@@ -11,11 +12,11 @@ import util.PasswordValidator;
 
 public class UserUI {
 
-	UserManager userManager;
+	UserQueryManager userManager;
 	User currentUser;
 
 	public UserUI() {
-		userManager = new UserManager();
+		userManager = new UserQueryManager();
 	}
 
 	private Scanner input = new Scanner(System.in);
@@ -26,7 +27,8 @@ public class UserUI {
 		do {
 			showUserMenu();
 			System.out.print("Enter your choice : ");
-			choice = input.nextLine();
+			choice = input.nextLine().trim();
+			
 			if (choice.equals("1"))
 				signup();
 			else if (choice.equals("2")) {
@@ -91,7 +93,7 @@ public class UserUI {
 			login();
 
 		} catch (UserAlreadyExistsException e) {
-			System.out.println("User Already exists");
+			System.out.println(e.getClass().getName() + " : " + e.getMessage());
 		}
 	}
 
@@ -100,15 +102,19 @@ public class UserUI {
 		String email;
 		String password;
 		System.out.print("Enter email : ");
-		email = input.next().trim().toLowerCase();
+		email = input.nextLine().trim().toLowerCase();
 		while (true) {
 			System.out.print("Enter password : ");
-			password = input.next();
+			password = input.nextLine();
 
 			try {
 				userManager.login(email, password);
 				System.out.println("Successfully logged in");
-				currentUser = userManager.getLoggedInUser();
+				try {
+					currentUser = userManager.getLoggedInUser();
+				} catch (NoUserLoggedIn e) {
+					System.out.println(e.getClass().getName() + " : " + e.getMessage());
+				}
 				System.out.println("\n------ Welcome " + currentUser.getName() + "! ------");
 				CalendarUI calendarUI = new CalendarUI(currentUser);
 				calendarUI.execute();
@@ -116,10 +122,10 @@ public class UserUI {
 				return;
 
 			} catch (InvalidCredentials e) {
-				System.out.println("Incorrect password!");
+				System.out.println(e.getClass().getName() + " : " + e.getMessage());
 				continue;
 			} catch (UserDoesNotExistsException e) {
-				System.out.println("User doesn't exists! Signup to continue");
+				System.out.println(e.getClass().getName() + " : " + e.getMessage());
 				return;
 			}
 		}

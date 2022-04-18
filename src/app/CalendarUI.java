@@ -1,33 +1,41 @@
 package app;
 
+import java.text.ParseException;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Scanner;
 import java.util.TreeSet;
-import database.EventManager;
+import database.EventQueryManager;
 import exception.InvalidEventException;
 import model.Event;
 import model.MyCalendar;
 import model.RecurrenceType;
 import model.User;
+import service.EventInfoPrinter;
 import service.RecurringEventManager;
 import util.DateAndTimeFormatter;
 import util.DateValidator;
 import util.TimeValidator;
 
 public class CalendarUI implements ShowErrorMessage {
-	private static Scanner input = new Scanner(System.in);
-	private DateValidator dateValidator = new DateValidator(this);
-	private TimeValidator timeValidator = new TimeValidator(this);
-	private EventInfoPrinter eventInfoPrinter = new EventInfoPrinter();
-	private GregorianCalendar calendar = new GregorianCalendar();
-	private MyCalendar myCalendar = new MyCalendar();
+	private static Scanner input;
+	private DateValidator dateValidator;
+	private TimeValidator timeValidator;
+	private EventInfoPrinter eventInfoPrinter;
+	private GregorianCalendar calendar;
+	private MyCalendar myCalendar;
 	private User currentUser;
-	private EventManager eventManager;
+	private EventQueryManager eventManager;
 
 	public CalendarUI(User currentUser) {
+		input = new Scanner(System.in);
+		dateValidator = new DateValidator(this);
+		timeValidator = new TimeValidator(this);
+		eventInfoPrinter = new EventInfoPrinter();
+		calendar = new GregorianCalendar();
+		myCalendar = new MyCalendar();
 		this.currentUser = currentUser;
-		eventManager = new EventManager();
+		eventManager = new EventQueryManager();
 	}
 
 	public void showCalendarMenu() {
@@ -78,10 +86,10 @@ public class CalendarUI implements ShowErrorMessage {
 				showEvent(events);
 				break;
 			case "8":
-				viewEvent();
+				showEvent(eventManager.getAllEvents(currentUser));
 				break;
 			case "9":
-				currentUser = null;			
+				currentUser = null;
 				System.out.println("Successfully logged out");
 				return;
 			default:
@@ -107,8 +115,7 @@ public class CalendarUI implements ShowErrorMessage {
 			else if (choice.equals("3")) {
 				customizeCalendar();
 				System.out.println(myCalendar.currentMonth(calendar));
-			}
-			else if(choice.equals("4"))
+			} else if (choice.equals("4"))
 				return;
 			else
 				System.out.println("Invalid option!");
@@ -122,26 +129,16 @@ public class CalendarUI implements ShowErrorMessage {
 		String confirmationMessage = "Size preference saved";
 		sizePreference = input.next();
 		do {
-			if(sizePreference.equals("1"))
+			if (sizePreference.equals("1"))
 				myCalendar.setCalendarSizePreference(MyCalendar.CalendarSize.SMALL);
-			else if(sizePreference.equals("2"))
+			else if (sizePreference.equals("2"))
 				myCalendar.setCalendarSizePreference(MyCalendar.CalendarSize.MEDIUM);
-			else if(sizePreference.equals("3"))
+			else if (sizePreference.equals("3"))
 				myCalendar.setCalendarSizePreference(MyCalendar.CalendarSize.LARGE);
 			else
 				System.out.println("Invalid choice!");
-		}while(!sizePreference.equals("1") && !sizePreference.equals("2") && !sizePreference.equals("3"));
+		} while (!sizePreference.equals("1") && !sizePreference.equals("2") && !sizePreference.equals("3"));
 		System.out.println(confirmationMessage);
-	}
-
-	private void viewEvent() {
-		TreeSet<Event> allEvents = eventManager.getAllEvents(currentUser);
-
-		if (allEvents != null && allEvents.size() > 0) {
-			eventInfoPrinter.print(allEvents);
-		} else {
-			System.out.println("No events scheduled");
-		}
 	}
 
 	private void createEvent() {
@@ -184,9 +181,16 @@ public class CalendarUI implements ShowErrorMessage {
 		}
 
 		try {
-			Event event = eventManager.createEvent(currentUser, name,
-					DateAndTimeFormatter.dateTimeToMillisecond(startDate, startTime),
-					DateAndTimeFormatter.dateTimeToMillisecond(endDate, endTime));
+			Event event;
+			DateAndTimeFormatter dateAndTimeFormatter = new DateAndTimeFormatter();
+			try {
+				event = eventManager.createEvent(currentUser, name,
+						dateAndTimeFormatter.dateTimeToMillisecond(startDate, startTime),
+						dateAndTimeFormatter.dateTimeToMillisecond(endDate, endTime));
+			} catch (ParseException e) {
+				System.out.println("Invalid date or time");
+				return;
+			}
 			System.out.println("Event created successfully");
 			while (true) {
 				System.out.print("Do you want to recur this event(y/n) : ");
@@ -228,12 +232,13 @@ public class CalendarUI implements ShowErrorMessage {
 			}
 
 		}
-		RecurringEventManager recurringEventManager = new RecurringEventManager(currentUser, event, recurCount, recurType);
+		RecurringEventManager recurringEventManager = new RecurringEventManager(currentUser, event, recurCount,
+				recurType);
 		try {
 			recurringEventManager.createEvent();
 			System.out.println("Recurring event created successfully");
 		} catch (InvalidEventException e) {
-			e.printStackTrace();
+			System.out.println("Invalid date time range");
 		}
 	}
 
@@ -253,28 +258,30 @@ public class CalendarUI implements ShowErrorMessage {
 	}
 
 	private void showEvent(TreeSet<Event> events) {
-
-		if (events != null && events.size() > 0) {
 			eventInfoPrinter.print(events);
-		} else {
-			System.out.println("No events scheduled");
-		}
 	}
 
 	private TreeSet<Event> getEventFromDate() {
 		String date;
+		DateAndTimeFormatter dateAndTimeFormatter = new DateAndTimeFormatter();
 		while (true) {
 			System.out.print("Enter event date(dd-mm-yyyy) : ");
 			date = input.next().trim();
 			if (dateValidator.isValidDate(date))
 				break;
 		}
-		Date dateOfEvent = DateAndTimeFormatter.toDate(date);
-		calendar.setTime(dateOfEvent);
-		TreeSet<Event> eventList = eventManager.getAllEvents(currentUser);
-		eventList = eventManager.filterEventsOnThisDay(eventList, dateOfEvent.getTime());
-		if (eventList.size() > 0)
-			return eventList;
+		Date dateOfEvent;
+		try {
+			dateOfEvent = dateAndTimeFormatter.toDate(date);
+			calendar.setTime(dateOfEvent);
+			TreeSet<Event> eventList = eventManager.getAllEvents(currentUser);
+			eventList = eventManager.filterEventsOnThisDay(eventList, dateOfEvent.getTime());
+			if (eventList.size() > 0)
+				return eventList;
+		} catch (ParseException e) {
+			System.out.println("Invalid date");
+		}
+
 		return null;
 	}
 

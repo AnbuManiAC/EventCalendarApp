@@ -1,5 +1,7 @@
 package util;
 
+import java.text.ParseException;
+
 import app.ErrorMessage;
 import app.ShowErrorMessage;
 
@@ -68,9 +70,16 @@ public class DateValidator {
 	}
 
 	public boolean isValidDateRange(String startDate, String endDate) {
+		DateAndTimeFormatter dateAndTimeFormatter = new DateAndTimeFormatter();
 		if (isValidDate(startDate) && isValidDate(endDate)) {
-			Long start = DateAndTimeFormatter.dateToMillisecond(startDate);
-			Long end = DateAndTimeFormatter.dateToMillisecond(endDate);
+			Long start;
+			Long end;
+			try {
+				start = dateAndTimeFormatter.dateToMillisecond(startDate);
+				end = dateAndTimeFormatter.dateToMillisecond(endDate);
+			} catch (ParseException e) {
+				return false;
+			}
 			int dateComparator = start.compareTo(end);
 			if (dateComparator != 1)
 				return true;

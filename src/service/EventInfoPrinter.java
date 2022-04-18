@@ -1,4 +1,4 @@
-package app;
+package service;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -10,7 +10,7 @@ import model.MyCalendar;
 public class EventInfoPrinter {
 	public void print(TreeSet<Event> events) {
 
-		if (events.size() > 0) {
+		if (events!=null && events.size() > 0) {
 			for (Event event : events) {
 				String startEventDate = getEventDate(event.getStartDateTime());
 				String endEventDate = getEventDate(event.getEndDateTime());
@@ -50,14 +50,11 @@ public class EventInfoPrinter {
 		cal.setTimeInMillis(millis);
 		int hour = cal.get(Calendar.HOUR_OF_DAY);
 		int minute = cal.get(Calendar.MINUTE);
-		if (hour <= 9) {
-			eventTime.append("0" + cal.get(Calendar.HOUR_OF_DAY) + ":");
-		} else
-			eventTime.append(cal.get(Calendar.HOUR_OF_DAY) + ":");
-		if (minute <= 9)
-			eventTime.append("0" + cal.get(Calendar.MINUTE) + " ");
-		else
-			eventTime.append(cal.get(Calendar.MINUTE) + " ");
+		String hourRepresentation = (hour<=9)? "0" + cal.get(Calendar.HOUR_OF_DAY) + ":" : cal.get(Calendar.HOUR_OF_DAY) + ":";
+		String minuteRepresentation = (minute<=9)? "0" + cal.get(Calendar.MINUTE) + " " : cal.get(Calendar.MINUTE) + " ";
+
+		eventTime.append(hourRepresentation);
+		eventTime.append(minuteRepresentation);
 
 		return eventTime.toString();
 	}

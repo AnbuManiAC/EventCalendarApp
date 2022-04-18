@@ -1,5 +1,7 @@
 package util;
 
+import java.text.ParseException;
+
 import app.ErrorMessage;
 import app.ShowErrorMessage;
 
@@ -38,9 +40,16 @@ public class TimeValidator {
 	}
 
 	public boolean isValidDateTimeRange(String startDate, String endDate, String startTime, String endTime) {
+		DateAndTimeFormatter dateAndTimeFormatter = new DateAndTimeFormatter();
 		if (isValidTime(endTime) && isValidTime(startTime)) {
-			Long startDateTime = DateAndTimeFormatter.dateTimeToMillisecond(startDate, startTime);
-			Long endDateTime = DateAndTimeFormatter.dateTimeToMillisecond(endDate, endTime);
+			Long startDateTime;
+			Long endDateTime;
+			try {
+				startDateTime = dateAndTimeFormatter.dateTimeToMillisecond(startDate, startTime);
+				endDateTime = dateAndTimeFormatter.dateTimeToMillisecond(endDate, endTime);
+			} catch (ParseException e) {
+				return false;
+			}
 			int dateTimeComparator = startDateTime.compareTo(endDateTime);
 			if (dateTimeComparator == -1)
 				return true;

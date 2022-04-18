@@ -29,3 +29,4 @@ public class PasswordValidator {
 		return (passwordLength >= 8 && passwordLength<=15 && hasLowerCase && hasUpperCase && hasNumber && hasSpecialCharacter);
 	}
 }
+		
