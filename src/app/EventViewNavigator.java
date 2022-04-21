@@ -6,7 +6,6 @@ import java.util.TreeSet;
 import database.EventQueryManager;
 import model.Event;
 import model.User;
-import service.EventInfoPrinter;
 
 public class EventViewNavigator {
 
@@ -20,7 +19,7 @@ public class EventViewNavigator {
 		eventInfoPrinter = new EventInfoPrinter();
 	}
 	
-	public void showEventViewMenu() {
+	void showEventViewMenu() {
 		System.out.println("\n---Event View Menu---");
 		System.out.println("1. Show Today Events");
 		System.out.println("2. Show Past Events");
@@ -30,7 +29,7 @@ public class EventViewNavigator {
 		System.out.println("6. Main menu");
 	}
 	
-	public void navigate(User currentUser) {
+	void navigate(User currentUser) {
 		String choice;
 		while (true) {
 			showEventViewMenu();

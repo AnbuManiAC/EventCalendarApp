@@ -9,7 +9,6 @@ import exception.InvalidInviteeException;
 import exception.UserDoesNotExistsException;
 import model.EventInvitation;
 import model.User;
-import service.EventInfoPrinter;
 import util.EmailValidator;
 
 public class EventInviteNavigator {
@@ -24,7 +23,7 @@ public class EventInviteNavigator {
 		eventInfoPrinter = new EventInfoPrinter();
 	}
 
-	public void inviteUserForEvent(User currentUser) {
+	void inviteUserForEvent(User currentUser) {
 		String email;
 		String id;
 		int eventId;
@@ -62,7 +61,7 @@ public class EventInviteNavigator {
 		System.out.println("User invited successfully");
 	}
 
-	public void viewInvitationNavigator(User currentUser) {
+	void viewInvitationNavigator(User currentUser) {
 		String choice;
 		while (true) {
 			System.out.println("1. Sent\n2. Received");
@@ -79,7 +78,7 @@ public class EventInviteNavigator {
 		}
 	}
 
-	public void acceptOrRejectInvitation(User currentUser) {
+	void acceptOrRejectInvitation(User currentUser) {
 		String eventInviteId;
 		int eventInvitationId;
 		String acceptanceChoice;
@@ -118,7 +117,7 @@ public class EventInviteNavigator {
 		
 	}
 	
-	public void viewReceivedInvitation(User currentUser) {
+	void viewReceivedInvitation(User currentUser) {
 		List<EventInvitation> receivedInvitation = eventInvitationManager.getReceivedInvitation(currentUser);
 		if (receivedInvitation.size()>0) {
 			for(EventInvitation eventInvitation : receivedInvitation) {
@@ -143,7 +142,7 @@ public class EventInviteNavigator {
 
 	}
 
-	public void viewSentInvitation(User currentUser) {
+	void viewSentInvitation(User currentUser) {
 		List<EventInvitation> sentInvitation = eventInvitationManager.getSentInvitation(currentUser);
 		if (sentInvitation.size() > 0) {
 			for (EventInvitation eventInvitation : sentInvitation) {
@@ -153,7 +152,7 @@ public class EventInviteNavigator {
 		else
 			System.out.println("No invitations sent");
 	}
-	public void viewInvitation(User currentUser, EventInvitation eventInvitation) {
+	void viewInvitation(User currentUser, EventInvitation eventInvitation) {
 		System.out.print("Event invited for :  ");
 		eventInfoPrinter.print(eventInvitation.getEventInvitedFor());
 		System.out.println("Inviter : " + eventInvitation.getInviter().getEmail() + "  Invitee : "

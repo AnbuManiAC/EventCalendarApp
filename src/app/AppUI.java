@@ -24,7 +24,7 @@ public class AppUI {
 		eventViewNavigator = new EventViewNavigator(input);
 	}
 
-	public void showCalendarMenu() {
+	void showCalendarMenu() {
 		System.out.println("\n---Calendar Menu---");
 		System.out.println("1. Show Calendar");
 		System.out.println("2. Create Event");

@@ -1,4 +1,4 @@
-package service;
+package app;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -9,7 +9,7 @@ import model.MyCalendar;
 
 public class EventInfoPrinter {
 	
-	public void print(TreeSet<Event> events) {
+	void print(TreeSet<Event> events) {
 		if(events!=null && events.size()>0) {
 			for(Event event : events)
 				print(event);
@@ -18,7 +18,7 @@ public class EventInfoPrinter {
 			System.out.println("No events scheduled");
 	}
 	
-	public void print(Event event) {
+	void print(Event event) {
 
 		String startEventDate = getEventDate(event.getStartDateTime());
 		String endEventDate = getEventDate(event.getEndDateTime());

@@ -10,7 +10,6 @@ import exception.InvalidEventException;
 import model.Event;
 import model.RecurrenceType;
 import model.User;
-import service.EventInfoPrinter;
 import service.RecurringEventManager;
 import util.DateAndTimeFormatter;
 import util.DateValidator;
