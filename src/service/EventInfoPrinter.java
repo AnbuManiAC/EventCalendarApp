@@ -8,28 +8,32 @@ import model.Event;
 import model.MyCalendar;
 
 public class EventInfoPrinter {
+	
 	public void print(TreeSet<Event> events) {
-
-		if (events!=null && events.size() > 0) {
-			for (Event event : events) {
-				String startEventDate = getEventDate(event.getStartDateTime());
-				String endEventDate = getEventDate(event.getEndDateTime());
-				String eventStartTime = getEventTime(event.getStartDateTime());
-				String eventEndTime = getEventTime(event.getEndDateTime());
-
-				StringBuilder eventDetails = new StringBuilder();
-
-				if (startEventDate.equals(endEventDate)) {
-					eventDetails.append(startEventDate + eventStartTime + " - " + eventEndTime);
-				} else {
-					eventDetails.append(startEventDate + eventStartTime + " - " + endEventDate + eventEndTime);
-				}
-
-				System.out.println("Event Id : (" + event.getId() + ")  " + eventDetails.toString() + event.getName());
-			}
-		} else {
-			System.out.println("No events scheduled");
+		if(events!=null && events.size()>0) {
+			for(Event event : events)
+				print(event);
 		}
+		else
+			System.out.println("No events scheduled");
+	}
+	
+	public void print(Event event) {
+
+		String startEventDate = getEventDate(event.getStartDateTime());
+		String endEventDate = getEventDate(event.getEndDateTime());
+		String eventStartTime = getEventTime(event.getStartDateTime());
+		String eventEndTime = getEventTime(event.getEndDateTime());
+
+		StringBuilder eventDetails = new StringBuilder();
+
+		if (startEventDate.equals(endEventDate)) {
+			eventDetails.append(startEventDate + eventStartTime + " - " + eventEndTime);
+		} else {
+			eventDetails.append(startEventDate + eventStartTime + " - " + endEventDate + eventEndTime);
+		}
+
+		System.out.println("Event Id : (" + event.getId() + ")  " + eventDetails.toString() + event.getName());
 	}
 
 	private String getEventDate(long millis) {

@@ -1,6 +1,6 @@
 package app;
 
-class MainClass {
+class Main {
 
 	public static void main(String[] args) {
 		UserUI userMenu = new UserUI();

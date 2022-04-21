@@ -102,7 +102,7 @@ public class UserUI {
 		String email;
 		String password;
 		System.out.print("Enter email : ");
-		email = input.nextLine().trim().toLowerCase();
+		email = input.nextLine().toLowerCase();
 		while (true) {
 			System.out.print("Enter password : ");
 			password = input.nextLine();
@@ -116,8 +116,8 @@ public class UserUI {
 					System.out.println(e.getClass().getName() + " : " + e.getMessage());
 				}
 				System.out.println("\n------ Welcome " + currentUser.getName() + "! ------");
-				CalendarUI calendarUI = new CalendarUI(currentUser);
-				calendarUI.execute();
+				AppUI appUI = new AppUI(currentUser);
+				appUI.execute();
 				logout();
 				return;
 
